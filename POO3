@@ -1,0 +1,207 @@
+#include <iostream>
+#include <vector>
+#include <list>
+#include<unordered_map>
+#include<string>
+#include<stdlib.h>
+#include<cstring>
+#include <tuple>
+using namespace std;
+class Examen
+{
+protected:
+    static int numar;
+    string denumire;
+    tuple<int,int,int> data;
+    float nota_scris;
+
+public:
+    static void set_numar(){numar++;}
+    static void set_numar(int nr){numar=nr;}
+    static int get_numar(){return numar;}
+    Examen(string den,tuple<int,int,int>data,float nota_scr):denumire(den),data(data),nota_scris(nota_scr){set_numar();}
+    Examen(){   denumire='\0';
+                data= make_tuple(0,0,0);
+                nota_scris=0;
+                }
+    virtual ~Examen(){}
+    virtual void afis()=0;
+    Examen &operator=( Examen& ob);
+    friend istream& operator>>(istream&, Examen&);
+
+};
+int Examen::numar=0;
+Examen& Examen::operator=( Examen& ob)
+{
+    if(&ob!=this)
+        {this->set_numar(ob.get_numar());
+        this->denumire=ob.denumire;
+        this->data=ob.data;
+        this->nota_scris=ob.nota_scris;
+        }
+        return *this;
+
+}
+istream& operator>>(istream& in, Examen& ob )
+{
+    cout<<endl<<"Denumire examen: ";
+    in>>ob.denumire;
+    cout<<endl<<"Data examen(D/M/Y): ";
+    int day,month,year;
+    in>>day>>month>>year;
+    ob.data=make_tuple(day,month,year);
+    cout<<endl<<"Nota_scris: ";
+    in>>ob.nota_scris;
+}
+class Partial:public Examen
+{
+protected:
+    float nota_oral;
+public:
+    Partial():Examen(){nota_oral=0;}
+    Partial(string den,tuple<int,int,int> data, float nota_sc,float nota_oral):Examen(den,data,nota_sc),nota_oral(nota_oral){}
+    virtual ~Partial():~Examen()
+    Partial &operator=(const Partial& );
+    virtual void afisare();
+    friend istream& operator>>(istream&, Partial&);
+    //friend bool status_partial(const Partial);
+};
+
+Partial& Partial::operator=(const Partial& ob)
+{
+        if(&ob!=this)
+        {this->set_numar(ob.get_numar());
+        this->denumire=ob.denumire;
+        this->data=ob.data;
+        this->nota_scris=ob.nota_scris;
+        this->nota_oral=ob.nota_oral;
+        }
+        return *this;
+}
+void Partial::afisare()
+{
+    cout<<endl<<"Numar: "<<Examen::get_numar();
+    cout<<endl<<"Denumire: "<<denumire;
+    cout<<endl<<"Data: "<<data;
+    cout<<endl<<"Nota_scris: "<<nota_scris;
+    cout<<endl<<"Nota_oral: "<<nota_oral;
+}
+/*bool status_partial(const Partial ob){
+    if(ob.nota_scris>5&&ob.nota_oral>5) return 1;
+    else return 0;
+*/
+class Final:public Examen
+{
+   float extra_puncte;
+   public:
+    Final():Examen(){extra_puncte=0;}
+    Final(string den,tuple<int,int,int> data, float nota_sc,float extra_puncte):Examen(den,data,nota_sc),extra_puncte(extra_puncte){}
+    virtual ~Final():~Examen()
+    Final &operator=(const Final& );
+    virtual void afisare();
+    friend istream& operator>>(istream&, Final&);
+
+};
+Final& Final::operator=(const Final& ob)
+{
+        if(&ob!=this)
+       {this->set_numar(ob.get_numar());
+        this->denumire=ob.denumire;
+        this->data=ob.data;
+        this->nota_scris=ob.nota_scris;
+        
+        this->extra_puncte=ob.extra_puncte;
+        }
+        return *this;
+        
+}
+void Partial::afisare()
+{
+    cout<<endl<<"Numar: "<<Examen::get_numar();
+    cout<<endl<<"Denumire: "<<denumire;
+    cout<<endl<<"Data: "<<data;
+    cout<<endl<<"Nota_scris: "<<nota_scris;
+    cout<<endl<<"Extra puncte: "<<extra_puncte;
+}
+class Quizz: public Examen
+{
+    int nr_itemi;
+public:
+    Quizz():Examen(){nr_itemi=0;}
+    Quizz(string den,tuple<int,int,int> data, float nota_sc,int nr_itemi):Examen(den,data,nota_sc),nr_itemi(nr_itemi){}
+    virtual ~Quiz():~Examen()
+    Quizz &operator=(const Quizz& );
+    virtual void afisare();
+    friend istream& operator>>(istream&, Quizz&);
+
+};
+Quizz& Quizz::operator=(const Quizz& ob)
+{
+        if(&ob!=this)
+        {
+        ob.set_numar(this->get_numar());
+        ob.denumire=this->denumire;
+        ob.data=this->data;
+        ob.nota_scris=this->nota_scris;
+        ob.nota_oral=this->nota_oral;
+        ob.nr_itemi=this->nr_itemi;
+        }
+        return ob;
+}
+void Quizz::afisare()
+{
+    cout<<endl<<"Numar: "<<Examen::get_numar();
+    cout<<endl<<"Denumire: "<<denumire;
+    cout<<endl<<"Data: "<<data;
+    cout<<endl<<"Nota_scris: "<<nota_scris;
+    cout<<endl<<"Nr de itemi: "<<nr_itemi;
+}
+template <class T1,class T2>
+class CatalogIndividual
+{
+    protected:
+    static int nr_matricol;
+    int nr_examene;
+    T1 partial;
+    T2 ex_final;
+
+    public:
+    static void set_nr_matricol(){nr_matricol++;}
+    static void get_nr_matricol(){cout<<endl<<"Nr_matricol: "<<nr_matricol;}
+    CatalogIndividual(int nr_exam=0, T1 par,T2 ex_f):nr_examene(nr_exam),partial(par),ex_final(ex_f){set_nr_matricol();}
+    virtual ~CatalogIndividual(){}
+    void afis() const;
+    
+} ;
+template <class T1,class T2> 
+    void afis() const
+    {
+        CatalogIndividual::get_nr_matricol();
+        cout<<endl<<"Numar examene: "<<nr_examene;
+        cout<<endl<<partial::afisare();
+        cout<<endl<<ex_final::afisare();
+    }
+
+int CatalogIndividual::nr_matricol=0;
+class CatalogIndividual:public Student
+{
+    string nume;
+public:
+    Student(int nr_exam=0,T1 par,T2 ex_f, string nume='\0'):CatalogIndividual(nr_exam,par,ex_f),nume(nume){}
+    virtual ~Student:~CatalogIndividual(){}
+    
+}
+class Grupa: public CatalogIndividual
+{
+    unordered_map<partial.numar, nr_matricol>
+    unordered_map<ex_final.numar, nr_matricol>
+};
+int main()
+{
+   //vector<CatalogIndividual>
+   Examen a;
+   CatalogIndividual::get_nr_matricol();
+   Examen b;
+   CatalogIndividual::get_nr_matricol();
+
+}
